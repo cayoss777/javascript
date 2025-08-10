@@ -1,915 +1,274 @@
-<!DOCTYPE html>
+<!--
+  e-commerce-single-file-emailjs.html
+  Un e-commerce sencillo en UN SOLO archivo HTML que envía la compra por EmailJS.
+
+  INSTRUCCIONES RÁPIDAS:
+  1) Crea cuenta en https://www.emailjs.com
+  2) Añade un "Service" (ej: Gmail) y copia el SERVICE_ID
+  3) Crea una plantilla (Template) y usa variables: order_details, customer_name, customer_email, total
+     Copia el TEMPLATE_ID
+  4) En Account → API Keys copia tu PUBLIC_KEY
+  5) Reemplaza los textos: "TU_SERVICE_ID", "TU_TEMPLATE_ID", "TU_PUBLIC_KEY"
+  6) Abre este archivo en el navegador (no necesita servidor). Prueba con tu correo.
+
+  Nota: la "Public Key" es segura para el cliente. Nunca expongas tu clave privada.
+-->
+
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>e-commerce</title>
-   
-   <!--
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"> 
-   -->
-   
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0850e 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Header */
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: #667eea;
-        }
-
-        .cart-icon {
-            position: relative;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: #333;
-            transition: transform 0.3s ease;
-        }
-
-        .cart-icon:hover {
-            transform: scale(1.1);
-        }
-
-        .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        /* Main Content */
-        main {
-            margin-top: 100px;
-            padding: 2rem 0;
-        }
-
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            color: white;
-            padding: 4rem 0;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            animation: fadeInUp 1s ease;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            animation: fadeInUp 1s ease 0.2s both;
-        }
-
-        /* Filters */
-        .filters {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-        }
-
-        .filter-group {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 0.5rem 1.5rem;
-            border: 2px solid #667eea;
-            background: transparent;
-            color: #667eea;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .filter-btn:hover,
-        .filter-btn.active {
-            background: #667eea;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .search-box {
-            padding: 0.8rem 1.5rem;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s ease;
-            min-width: 250px;
-        }
-
-        .search-box:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        /* Products Grid */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            padding: 2rem 0;
-        }
-
-        .product-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-
-        .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(31, 38, 135, 0.5);
-        }
-
-        .product-image {
-            width: 100%;
-            height: 250px;
-            background: linear-gradient(45deg, #f0f2f5, #e1e8ed);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            color: #667eea;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .product-image::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transition: left 0.5s;
-        }
-
-        .product-card:hover .product-image::before {
-            left: 100%;
-        }
-
-        .product-info {
-            padding: 1.5rem;
-        }
-
-        .product-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        .product-description {
-            color: #666;
-            margin-bottom: 1rem;
-            line-height: 1.5;
-        }
-
-        .product-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 1rem;
-        }
-
-        .add-to-cart {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .add-to-cart:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .add-to-cart:active {
-            transform: translateY(0);
-        }
-
-        /* Cart Modal */
-        .cart-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-        }
-
-        .cart-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .cart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .cart-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .close-cart {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-            transition: color 0.3s ease;
-        }
-
-        .close-cart:hover {
-            color: #ff4757;
-        }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .cart-item-info {
-            flex: 1;
-        }
-
-        .cart-item-title {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .cart-item-price {
-            color: #667eea;
-            font-weight: bold;
-        }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 0.5rem 0;
-        }
-
-        .quantity-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s ease;
-        }
-
-        .quantity-btn:hover {
-            background: #5a67d8;
-        }
-
-        .cart-total {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 2px solid #f0f0f0;
-        }
-
-        .total-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 1rem;
-        }
-
-        .checkout-btn {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .empty-cart {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .filter-group {
-                justify-content: center;
-            }
-
-            .search-box {
-                min-width: 200px;
-            }
-
-            .products-grid {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1rem;
-            }
-
-            .cart-content {
-                width: 95%;
-                padding: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero h1 {
-                font-size: 1.5rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
-            }
-
-            .filters {
-                padding: 1rem;
-            }
-
-            .filter-group {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .search-box {
-                width: 100%;
-                min-width: unset;
-            }
-
-            .products-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Success Animation */
-        .success-animation {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(46, 204, 113, 0.9);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 10px;
-            z-index: 3000;
-            animation: successPop 2s ease;
-        }
-
-        @keyframes successPop {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini E‑commerce — Envío por EmailJS</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1320; --accent:#7c3aed; --muted:#a3b1c6; --glass: rgba(255,255,255,0.04);
+      --radius:14px; --glass-2: rgba(255,255,255,0.02);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#071022 0%, var(--bg) 100%);color:#e6eef8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+    .app{width:1100px;max-width:100%;display:grid;grid-template-columns:1fr 420px;gap:28px}
+    .store{background:linear-gradient(180deg,var(--card), rgba(11,19,32,0.9));padding:22px;border-radius:var(--radius);box-shadow:0 6px 30px rgba(2,6,23,0.6);}
+    h1{margin:0 0 6px 0;font-size:20px}
+    p.lead{margin:0 0 18px 0;color:var(--muted)}
+
+    .products{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .product{background:var(--glass);padding:14px;border-radius:12px;display:flex;gap:12px;align-items:center}
+    .thumb{width:86px;height:86px;border-radius:10px;background:linear-gradient(135deg,#0a2540,#1b3b6b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:20px}
+    .meta{flex:1}
+    .meta h3{margin:0;font-size:15px}
+    .meta p{margin:4px 0 0 0;color:var(--muted);font-size:13px}
+    .price{font-weight:700}
+    .actions{display:flex;flex-direction:column;gap:8px}
+    button.btn{background:linear-gradient(90deg,var(--accent),#5b21b6);border:0;padding:8px 12px;border-radius:10px;color:white;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:10px;color:var(--muted);cursor:pointer}
+
+    /* Cart */
+    .cart{background:linear-gradient(180deg,rgba(255,255,255,0.02),var(--glass-2));padding:18px;border-radius:var(--radius);min-height:380px}
+    .cart h2{margin:0 0 6px 0}
+    .cart .items{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+    .item{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.012),transparent)}
+    .item small{color:var(--muted)}
+    .totals{margin-top:14px;padding-top:12px;border-top:1px dashed rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center}
+
+    /* checkout */
+    form.checkout{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+    input,textarea,select{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px;border-radius:8px;color:inherit}
+    textarea{min-height:80px}
+    .note{font-size:13px;color:var(--muted)}
+
+    footer{margin-top:12px;font-size:12px;color:var(--muted);text-align:center}
+
+    @media (max-width:980px){.app{grid-template-columns:1fr;}}
+  </style>
 </head>
 <body>
-    <header>
-        <nav class="container">
-            <div class="logo">TechStore</div>
-            <ul class="nav-links">
-                <li><a href="#home">Inicio</a></li>
-                <li><a href="#products">Productos</a></li>
-                <li><a href="#about">Acerca</a></li>
-                <li><a href="#contact">Contacto</a></li>
-            </ul>
-            <div class="cart-icon" onclick="toggleCart()">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-count" id="cartCount">0</span>
-            </div>
-        </nav>
-    </header>
+  <div class="app">
+    <section class="store">
+      <h1>Mini Tienda — Productos Destacados</h1>
+      <p class="lead">Añade productos al carrito y realiza la compra. Se enviará un correo con el detalle de la orden.</p>
 
-    <main class="container">
-        <section class="hero">
-            <h1>Bienvenido a TechStore</h1>
-            <p>Descubre los mejores productos tecnológicos con la mejor calidad y precios</p>
-        </section>
+      <div class="products" id="products"></div>
 
-        <section class="filters">
-            <div class="filter-group">
-                <input type="text" class="search-box" id="searchInput" placeholder="Buscar productos...">
-                <button class="filter-btn active" onclick="filterProducts('all')">Todos</button>
-                <button class="filter-btn" onclick="filterProducts('smartphones')">Smartphones</button>
-                <button class="filter-btn" onclick="filterProducts('laptops')">Laptops</button>
-                <button class="filter-btn" onclick="filterProducts('tablets')">Tablets</button>
-                <button class="filter-btn" onclick="filterProducts('accessories')">Accesorios</button>
-            </div>
-        </section>
+      <footer>
+        <small>Diseño moderno y responsivo · Integración EmailJS</small>
+      </footer>
+    </section>
 
-        <section class="products-grid" id="productsGrid">
-            <!-- Products will be dynamically loaded here -->
-        </section>
-    </main>
+    <aside class="cart">
+      <h2>Carrito</h2>
+      <div class="items" id="cart-items">
+        <small class="note">Tu carrito está vacío.</small>
+      </div>
 
-    <!-- Cart Modal -->
-    <div class="cart-modal" id="cartModal">
-        <div class="cart-content">
-            <div class="cart-header">
-                <h2 class="cart-title">Carrito de Compras</h2>
-                <button class="close-cart" onclick="toggleCart()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div id="cartItems"></div>
-            <div class="cart-total" id="cartTotal"></div>
+      <div class="totals">
+        <strong>Total:</strong>
+        <strong id="cart-total">S/ 0.00</strong>
+      </div>
+
+      <form class="checkout" id="checkout-form">
+        <label class="note">Datos para la compra</label>
+        <input name="customer_name" placeholder="Tu nombre" required />
+        <input name="customer_email" type="email" placeholder="Tu email" required />
+        <textarea name="notes" placeholder="Notas (dirección, teléfono, referencia)"></textarea>
+        <button type="submit" class="btn">Realizar pedido</button>
+        <button type="button" id="clear-cart" class="ghost">Vaciar carrito</button>
+      </form>
+
+    </aside>
+  </div>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    // === CONFIG: reemplaza con tus datos ===
+    //const EMAILJS_SERVICE_ID = 'TU_SERVICE_ID';
+    const EMAILJS_SERVICE_ID = 'service_7jyinqk';
+    //const EMAILJS_TEMPLATE_ID = 'TU_TEMPLATE_ID';
+    const EMAILJS_TEMPLATE_ID = 'template_knkil7s';
+    //const EMAILJS_PUBLIC_KEY = 'TU_PUBLIC_KEY';
+    const EMAILJS_PUBLIC_KEY = 'JBfNPtlBAA85DX84X';
+    // =======================================
+
+    (function(){
+      if (window.emailjs) emailjs.init(EMAILJS_PUBLIC_KEY);
+      else console.warn('EmailJS SDK no cargado');
+    })();
+
+    // Productos (puedes añadir, editar, cambiar precios)
+    const PRODUCTS = [
+      { id: 'p1', title: 'Auriculares Wireless', price: 129.99, desc: 'Sonido claro, batería 20h' },
+      { id: 'p2', title: 'Teclado Mecánico', price: 219.50, desc: 'Switches táctiles, retroiluminación' },
+      { id: 'p3', title: 'Mouse Gamer', price: 89.00, desc: 'Sensor óptico 16000 DPI' },
+      { id: 'p4', title: 'Mochila Urbana', price: 149.00, desc: 'Compartimento laptop 15"' }
+    ];
+
+    // Estado del carrito
+    const cart = {};
+
+    // Utils
+    const toCurrency = v => 'S/ ' + v.toFixed(2);
+
+    // Render productos
+    const productsEl = document.getElementById('products');
+    PRODUCTS.forEach(p => {
+      const div = document.createElement('div'); div.className='product';
+      div.innerHTML = `
+        <div class='thumb'>${p.title.split(' ')[0].slice(0,2).toUpperCase()}</div>
+        <div class='meta'>
+          <h3>${p.title}</h3>
+          <p>${p.desc}</p>
         </div>
-    </div>
+        <div style='text-align:right'>
+          <div class='price'>${toCurrency(p.price)}</div>
+          <div class='actions'>
+            <button class='btn' data-id='${p.id}'>Añadir</button>
+          </div>
+        </div>
+      `;
+      productsEl.appendChild(div);
+    });
 
-    <script>
-        // Product data
-        const products = [
-            {
-                id: 1,
-                name: "iPhone 15 Pro",
-                price: 999,
-                category: "smartphones",
-                description: "El último iPhone con chip A17 Pro y cámara de 48MP",
-                icon: "📱"
-            },
-            {
-                id: 2,
-                name: "MacBook Pro M3",
-                price: 1299,
-                category: "laptops",
-                description: "Laptop profesional con chip M3 y pantalla Retina",
-                icon: "💻"
-            },
-            {
-                id: 3,
-                name: "iPad Air",
-                price: 599,
-                category: "tablets",
-                description: "Tablet versátil con chip M1 y Apple Pencil",
-                icon: "📟"
-            },
-            {
-                id: 4,
-                name: "AirPods Pro",
-                price: 249,
-                category: "accessories",
-                description: "Auriculares inalámbricos con cancelación de ruido",
-                icon: "🎧"
-            },
-            {
-                id: 5,
-                name: "Samsung Galaxy S24",
-                price: 899,
-                category: "smartphones",
-                description: "Smartphone Android con AI y cámara de 200MP",
-                icon: "📱"
-            },
-            {
-                id: 6,
-                name: "Dell XPS 13",
-                price: 999,
-                category: "laptops",
-                description: "Ultrabook compacta con pantalla InfinityEdge",
-                icon: "💻"
-            },
-            {
-                id: 7,
-                name: "Surface Pro 9",
-                price: 799,
-                category: "tablets",
-                description: "Tablet 2-en-1 con Windows 11 y Surface Pen",
-                icon: "📟"
-            },
-            {
-                id: 8,
-                name: "Magic Mouse",
-                price: 79,
-                category: "accessories",
-                description: "Mouse inalámbrico con superficie Multi-Touch",
-                icon: "🖱️"
-            },
-            {
-                id: 9,
-                name: "Google Pixel 8",
-                price: 699,
-                category: "smartphones",
-                description: "Smartphone con Google AI y cámara computacional",
-                icon: "📱"
-            }
-        ];
+    // Añadir listener a botones de añadir
+    productsEl.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      const id = btn.dataset.id; if(!id) return;
+      addToCart(id);
+    });
 
-        // Cart state
-        let cart = [];
-        let currentFilter = 'all';
+    // Cart UI
+    const cartItemsEl = document.getElementById('cart-items');
+    const cartTotalEl = document.getElementById('cart-total');
 
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            displayProducts(products);
-            updateCartCount();
-            
-            // Search functionality
-            document.getElementById('searchInput').addEventListener('input', function(e) {
-                searchProducts(e.target.value);
-            });
+    function addToCart(id){
+      if (!cart[id]) cart[id] = { ...PRODUCTS.find(p=>p.id===id), qty:0 };
+      cart[id].qty++;
+      renderCart();
+    }
+
+    function removeFromCart(id){
+      if (!cart[id]) return;
+      cart[id].qty--;
+      if (cart[id].qty<=0) delete cart[id];
+      renderCart();
+    }
+
+    function clearCart(){
+      for(const k in cart) delete cart[k];
+      renderCart();
+    }
+
+    function renderCart(){
+      cartItemsEl.innerHTML = '';
+      const keys = Object.keys(cart);
+      if (!keys.length){
+        cartItemsEl.innerHTML = '<small class="note">Tu carrito está vacío.</small>';
+        cartTotalEl.textContent = toCurrency(0);
+        return;
+      }
+
+      let total = 0;
+      keys.forEach(id=>{
+        const it = cart[id];
+        total += it.price * it.qty;
+        const item = document.createElement('div'); item.className='item';
+        item.innerHTML = `
+          <div>
+            <strong>${it.title}</strong><br><small class='note'>${toCurrency(it.price)} x ${it.qty}</small>
+          </div>
+          <div style='display:flex;gap:8px;align-items:center'>
+            <button class='ghost' data-action='minus' data-id='${it.id}'>-</button>
+            <button class='ghost' data-action='plus' data-id='${it.id}'>+</button>
+          </div>
+        `;
+        cartItemsEl.appendChild(item);
+      });
+
+      cartTotalEl.textContent = toCurrency(total);
+    }
+
+    // Delegación en carrito para + y -
+    cartItemsEl.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      const id = btn.dataset.id; const action = btn.dataset.action;
+      if (action==='minus') removeFromCart(id);
+      if (action==='plus') addToCart(id);
+    });
+
+    document.getElementById('clear-cart').addEventListener('click', clearCart);
+
+    // Checkout: envío por EmailJS
+    const checkoutForm = document.getElementById('checkout-form');
+    checkoutForm.addEventListener('submit', function(e){
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const name = formData.get('customer_name');
+      const email = formData.get('customer_email');
+      const notes = formData.get('notes') || '';
+
+      // Validar carrito
+      const items = Object.values(cart);
+      if (!items.length) return alert('El carrito está vacío.');
+
+      // Preparar detalle de la orden
+      const lines = items.map(it => `${it.title} — ${it.qty} x S/ ${it.price.toFixed(2)} = S/ ${(it.price*it.qty).toFixed(2)}`);
+      const subtotal = items.reduce((s,it)=>s+it.price*it.qty,0);
+      const total = subtotal; // aquí podrías añadir impuestos/envío
+
+      const orderDetails = lines.join('\n');
+
+      // Datos que pedirá tu plantilla en EmailJS
+      const templateParams = {
+        customer_name: name,
+        customer_email: email,
+        notes: notes,
+        order_details: orderDetails,
+        total: 'S/ ' + total.toFixed(2),
+        // también puedes añadir un campo con todos los items en formato JSON si lo prefieres
+        raw_order: JSON.stringify(items, null, 2)
+      };
+
+      // Enviar por EmailJS
+      if (!window.emailjs) return alert('EmailJS no está cargado.');
+
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+        .then((response)=>{
+          console.log('SUCCESS!', response.status, response.text);
+          alert('Pedido enviado. Revisa tu correo.');
+          clearCart();
+          checkoutForm.reset();
+        }, (err)=>{
+          console.error('FAILED...', err);
+          alert('No se pudo enviar el pedido: ' + (err.text || JSON.stringify(err)));
         });
 
-        // Display products
-        function displayProducts(productsToShow) {
-            const grid = document.getElementById('productsGrid');
-            grid.innerHTML = '';
+    });
 
-            productsToShow.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'product-card';
-                productCard.innerHTML = `
-                    <div class="product-image">
-                        ${product.icon}
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-title">${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
-                        <div class="product-price">$${product.price}</div>
-                        <button class="add-to-cart" onclick="addToCart(${product.id})">
-                            <i class="fas fa-shopping-cart"></i> Agregar al Carrito
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(productCard);
-            });
-        }
+    // Inicializar render
+    renderCart();
 
-        // Filter products
-        function filterProducts(category) {
-            // Update active filter button
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-
-            currentFilter = category;
-            
-            if (category === 'all') {
-                displayProducts(products);
-            } else {
-                const filteredProducts = products.filter(product => product.category === category);
-                displayProducts(filteredProducts);
-            }
-        }
-
-        // Search products
-        function searchProducts(query) {
-            let productsToSearch = currentFilter === 'all' ? products : 
-                products.filter(product => product.category === currentFilter);
-            
-            const filteredProducts = productsToSearch.filter(product =>
-                product.name.toLowerCase().includes(query.toLowerCase()) ||
-                product.description.toLowerCase().includes(query.toLowerCase())
-            );
-            
-            displayProducts(filteredProducts);
-        }
-
-        // Add to cart
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            const existingItem = cart.find(item => item.id === productId);
-
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({ ...product, quantity: 1 });
-            }
-
-            updateCartCount();
-            showSuccessAnimation();
-        }
-
-        // Remove from cart
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            updateCartCount();
-            displayCartItems();
-        }
-
-        // Update quantity
-        function updateQuantity(productId, change) {
-            const item = cart.find(item => item.id === productId);
-            if (item) {
-                item.quantity += change;
-                if (item.quantity <= 0) {
-                    removeFromCart(productId);
-                } else {
-                    updateCartCount();
-                    displayCartItems();
-                }
-            }
-        }
-
-        // Update cart count
-        function updateCartCount() {
-            const count = cart.reduce((total, item) => total + item.quantity, 0);
-            document.getElementById('cartCount').textContent = count;
-        }
-
-        // Toggle cart modal
-        function toggleCart() {
-            const modal = document.getElementById('cartModal');
-            if (modal.style.display === 'block') {
-                modal.style.display = 'none';
-            } else {
-                modal.style.display = 'block';
-                displayCartItems();
-            }
-        }
-
-        // Display cart items
-        function displayCartItems() {
-            const cartItemsContainer = document.getElementById('cartItems');
-            const cartTotalContainer = document.getElementById('cartTotal');
-
-            if (cart.length === 0) {
-                cartItemsContainer.innerHTML = '<p class="empty-cart">Tu carrito está vacío</p>';
-                cartTotalContainer.innerHTML = '';
-                return;
-            }
-
-            cartItemsContainer.innerHTML = '';
-            let total = 0;
-
-            cart.forEach(item => {
-                const cartItem = document.createElement('div');
-                cartItem.className = 'cart-item';
-                cartItem.innerHTML = `
-                    <div class="cart-item-info">
-                        <div class="cart-item-title">${item.name}</div>
-                        <div class="cart-item-price">$${item.price}</div>
-                        <div class="quantity-controls">
-                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
-                            <span>${item.quantity}</span>
-                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
-                            <button class="quantity-btn" onclick="removeFromCart(${item.id})" style="background: #ff4757; margin-left: 10px;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                cartItemsContainer.appendChild(cartItem);
-                total += item.price * item.quantity;
-            });
-
-            cartTotalContainer.innerHTML = `
-                <div class="total-price">Total: $${total.toFixed(2)}</div>
-                <button class="checkout-btn" onclick="checkout()">
-                    <i class="fas fa-credit-card"></i> Proceder al Pago
-                </button>
-            `;
-        }
-
-        // Checkout function
-        function checkout() {
-            if (cart.length === 0) return;
-
-            // Simulate checkout process
-            const checkoutBtn = document.querySelector('.checkout-btn');
-            const originalText = checkoutBtn.innerHTML;
-            
-            checkoutBtn.innerHTML = '<div class="loading"></div> Procesando...';
-            checkoutBtn.disabled = true;
-
-            setTimeout(() => {
-                cart = [];
-                updateCartCount();
-                toggleCart();
-                showSuccessAnimation('¡Compra realizada con éxito!');
-                
-                checkoutBtn.innerHTML = originalText;
-                checkoutBtn.disabled = false;
-            }, 2000);
-        }
-
-        // Show success animation
-        function showSuccessAnimation(message = '¡Producto agregado al carrito!') {
-            const successDiv = document.createElement('div');
-            successDiv.className = 'success-animation';
-            successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-            
-            document.body.appendChild(successDiv);
-            
-            setTimeout(() => {
-                document.body.removeChild(successDiv);
-            }, 2000);
-        }
-
-        // Close cart when clicking outside
-        document.getElementById('cartModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                toggleCart();
-            }
-        });
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const modal = document.getElementById('cartModal');
-                if (modal.style.display === 'block') {
-                    toggleCart();
-                }
-            }
-        });
-
-
-        
-
-       //
-
-
-       function checkout() {
-    if (cart.length === 0) return;
-
-    const checkoutBtn = document.querySelector('.checkout-btn');
-    const originalText = checkoutBtn.innerHTML;
-    
-    checkoutBtn.innerHTML = '<div class="loading"></div> Procesando...';
-    checkoutBtn.disabled = true;
-
-    // Crear el contenido del correo
-    const emailContent = cart.map(item => `${item.name} - $${item.price} x ${item.quantity}`).join('\n');
-    const totalAmount = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-
-    // Enviar el correo
-    const templateParams = {
-        to_email: 'recipient@example.com', // Cambia esto por el correo del destinatario
-        message: `Detalles de la compra:\n${emailContent}\n\nTotal: $${totalAmount.toFixed(2)}`
-    };
-
-    emailjs.send('service_7jyinqk', 'template_knkil7s', templateParams)
-        .then(() => {
-            cart = [];
-            updateCartCount();
-            toggleCart();
-            showSuccessAnimation('¡Compra realizada con éxito y detalles enviados al correo!');
-
-            checkoutBtn.innerHTML = originalText;
-            checkoutBtn.disabled = false;
-        }, (error) => {
-            console.error('Error al enviar el correo:', error);
-            checkoutBtn.innerHTML = originalText;
-            checkoutBtn.disabled = false;
-        });
-}
-
-    </script>
+  </script>
 </body>
 </html>
