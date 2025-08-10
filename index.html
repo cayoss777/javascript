@@ -894,7 +894,7 @@
         message: `Detalles de la compra:\n${emailContent}\n\nTotal: $${totalAmount.toFixed(2)}`
     };
 
-    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+    emailjs.send('service_7jyinqk', 'template_knkil7s', templateParams)
         .then(() => {
             cart = [];
             updateCartCount();
