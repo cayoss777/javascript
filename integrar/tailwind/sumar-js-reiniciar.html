@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Suma con botones y reiniciar con JS</title>
+</head>
+<body>
+  <h2>Suma con botones y reiniciar con JS</h2>
+
+  <p>Valor A: <span id="a">0</span> <button onclick="sumar('a')">+1 a A</button></p>
+  <p>Valor B: <span id="b">0</span> <button onclick="sumar('b')">+1 a B</button></p>
+
+  <p>
+    <button onclick="mostrarSuma()">Mostrar suma</button>
+    Resultado: <span id="resultado">0</span>
+  </p>
+
+  <p>
+    <button onclick="reiniciar()">Reiniciar</button>
+  </p>
+
+  <script>
+    function sumar(id) {
+      const span = document.getElementById(id);
+      span.textContent = Number(span.textContent) + 1;
+    }
+
+    function mostrarSuma() {
+      const a = Number(document.getElementById('a').textContent);
+      const b = Number(document.getElementById('b').textContent);
+      document.getElementById('resultado').textContent = a + b;
+    }
+
+    function reiniciar() {
+      document.getElementById('a').textContent = 0;
+      document.getElementById('b').textContent = 0;
+      document.getElementById('resultado').textContent = 0;
+    }
+  </script>
+</body>
+</html>

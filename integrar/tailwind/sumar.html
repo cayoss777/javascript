@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Suma con botones - Ejemplo básico</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .box { margin-bottom: 10px; }
+    button { padding: 8px 12px; margin-right: 8px; cursor: pointer; }
+    #resultado { font-weight: bold; margin-left: 8px; }
+  </style>
+</head>
+<body>
+  <h2>2 botones que suman y 1 botón que muestra el resultado</h2>
+
+  <div class="box">
+    <span>Valor A: <span id="valorA">0</span></span>
+    <button id="btnA">+1 a A</button>
+  </div>
+
+  <div class="box">
+    <span>Valor B: <span id="valorB">0</span></span>
+    <button id="btnB">+1 a B</button>
+  </div>
+
+  <div class="box">
+    <button id="btnResultado">Mostrar suma</button>
+    <span>Resultado: <span id="resultado">0</span></span>
+  </div>
+
+  <script>
+    // valores iniciales
+    let a = 0;
+    let b = 0;
+
+    // referencias DOM
+    const valorA = document.getElementById('valorA');
+    const valorB = document.getElementById('valorB');
+    const resultadoEl = document.getElementById('resultado');
+
+    const btnA = document.getElementById('btnA');
+    const btnB = document.getElementById('btnB');
+    const btnResultado = document.getElementById('btnResultado');
+
+    // funciones que actualizan la UI
+    function actualizarUI() {
+      valorA.textContent = a;
+      valorB.textContent = b;
+    }
+
+    // eventos
+    btnA.addEventListener('click', () => {
+      a += 1;
+      actualizarUI();
+    });
+
+    btnB.addEventListener('click', () => {
+      b += 1;
+      actualizarUI();
+    });
+
+    btnResultado.addEventListener('click', () => {
+      const suma = a + b;
+      resultadoEl.textContent = suma;
+    });
+
+    // inicializa UI
+    actualizarUI();
+  </script>
+</body>
+</html>
