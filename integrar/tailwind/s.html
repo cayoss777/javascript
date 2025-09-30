@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider de Presentación - Tailwind CSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-in-right': 'slideInRight 0.7s ease-out',
+                        'slide-in-left': 'slideInLeft 0.7s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(100%)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        },
+                        slideInLeft: {
+                            '0%': { transform: 'translateX(-100%)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-red-600 via-red-700 to-red-800 py-4 px-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                    <span class="text-red-600 font-bold text-xl">S</span>
+                </div>
+                <span class="text-white font-bold text-xl">SliderPro</span>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="text-white hover:text-red-200 transition-colors">Inicio</a>
+                <a href="#" class="text-white hover:text-red-200 transition-colors">Servicios</a>
+                <a href="#" class="text-white hover:text-red-200 transition-colors">Portafolio</a>
+                <a href="#" class="text-white hover:text-red-200 transition-colors">Contacto</a>
+            </nav>
+            <button class="md:hidden text-white">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Slider de Presentación -->
+    <section class="relative overflow-hidden py-12 md:py-20">
+        <!-- Contenedor del Slider -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="relative">
+                <!-- Slides -->
+                <div id="slider-container" class="relative h-96 md:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
+                    <!-- Slide 1 -->
+                    <div class="slide absolute inset-0 w-full h-full flex items-center animate-fade-in" data-slide="1">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-purple-900/70 z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" 
+                             alt="Tecnología moderna" 
+                             class="absolute inset-0 w-full h-full object-cover">
+                        <div class="relative z-20 max-w-2xl ml-8 md:ml-16 text-white animate-slide-in-right">
+                            <span class="inline-block px-3 py-1 bg-blue-500 rounded-full text-sm font-medium mb-4">Nuevo</span>
+                            <h2 class="text-4xl md:text-6xl font-bold mb-4">Soluciones Digitales Innovadoras</h2>
+                            <p class="text-lg md:text-xl mb-6 opacity-90">Transformamos tus ideas en experiencias digitales excepcionales.</p>
+                            <div class="flex space-x-4">
+                                <button class="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition-all transform hover:scale-105">
+                                    Descubrir Más
+                                </button>
+                                <button class="px-6 py-3 bg-transparent border-2 border-white hover:bg-white/10 rounded-lg font-semibold transition-all">
+                                    Ver Demo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="slide absolute inset-0 w-full h-full flex items-center hidden" data-slide="2">
+                        <div class="absolute inset-0 bg-gradient-to-r from-green-900/80 to-teal-900/70 z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" 
+                             alt="Desarrollo web" 
+                             class="absolute inset-0 w-full h-full object-cover">
+                        <div class="relative z-20 max-w-2xl ml-8 md:ml-16 text-white">
+                            <span class="inline-block px-3 py-1 bg-green-500 rounded-full text-sm font-medium mb-4">Destacado</span>
+                            <h2 class="text-4xl md:text-6xl font-bold mb-4">Desarrollo Web a Medida</h2>
+                            <p class="text-lg md:text-xl mb-6 opacity-90">Creamos aplicaciones web modernas y escalables para tu negocio.</p>
+                            <div class="flex space-x-4">
+                                <button class="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-semibold transition-all transform hover:scale-105">
+                                    Ver Proyectos
+                                </button>
+                                <button class="px-6 py-3 bg-transparent border-2 border-white hover:bg-white/10 rounded-lg font-semibold transition-all">
+                                    Contactar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3 -->
+                    <div class="slide absolute inset-0 w-full h-full flex items-center hidden" data-slide="3">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-pink-900/70 z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" 
+                             alt="Diseño creativo" 
+                             class="absolute inset-0 w-full h-full object-cover">
+                        <div class="relative z-20 max-w-2xl ml-8 md:ml-16 text-white">
+                            <span class="inline-block px-3 py-1 bg-purple-500 rounded-full text-sm font-medium mb-4">Creativo</span>
+                            <h2 class="text-4xl md:text-6xl font-bold mb-4">Diseño que Inspira</h2>
+                            <p class="text-lg md:text-xl mb-6 opacity-90">Diseños únicos que capturan la esencia de tu marca.</p>
+                            <div class="flex space-x-4">
+                                <button class="px-6 py-3 bg-purple-500 hover:bg-purple-600 rounded-lg font-semibold transition-all transform hover:scale-105">
+                                    Explorar Diseños
+                                </button>
+                                <button class="px-6 py-3 bg-transparent border-2 border-white hover:bg-white/10 rounded-lg font-semibold transition-all">
+                                    Solicitar Presupuesto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4 -->
+                    <div class="slide absolute inset-0 w-full h-full flex items-center hidden" data-slide="4">
+                        <div class="absolute inset-0 bg-gradient-to-r from-orange-900/80 to-red-900/70 z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80" 
+                             alt="Soporte técnico" 
+                             class="absolute inset-0 w-full h-full object-cover">
+                        <div class="relative z-20 max-w-2xl ml-8 md:ml-16 text-white">
+                            <span class="inline-block px-3 py-1 bg-orange-500 rounded-full text-sm font-medium mb-4">Soporte</span>
+                            <h2 class="text-4xl md:text-6xl font-bold mb-4">Soporte Continuo</h2>
+                            <p class="text-lg md:text-xl mb-6 opacity-90">Estamos aquí para ayudarte en cada paso del camino.</p>
+                            <div class="flex space-x-4">
+                                <button class="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold transition-all transform hover:scale-105">
+                                    Conocer Más
+                                </button>
+                                <button class="px-6 py-3 bg-transparent border-2 border-white hover:bg-white/10 rounded-lg font-semibold transition-all">
+                                    Soporte 24/7
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controles de Navegación -->
+                <button id="prev-btn" class="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 bg-black/30 hover:bg-black/50 text-white p-3 rounded-full transition-all">
+                    <i class="fas fa-chevron-left text-xl"></i>
+                </button>
+                <button id="next-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 bg-black/30 hover:bg-black/50 text-white p-3 rounded-full transition-all">
+                    <i class="fas fa-chevron-right text-xl"></i>
+                </button>
+
+                <!-- Indicadores de Slide -->
+                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2">
+                    <button class="slide-indicator w-3 h-3 rounded-full bg-white/70 hover:bg-white transition-all" data-slide="1"></button>
+                    <button class="slide-indicator w-3 h-3 rounded-full bg-white/30 hover:bg-white/70 transition-all" data-slide="2"></button>
+                    <button class="slide-indicator w-3 h-3 rounded-full bg-white/30 hover:bg-white/70 transition-all" data-slide="3"></button>
+                    <button class="slide-indicator w-3 h-3 rounded-full bg-white/30 hover:bg-white/70 transition-all" data-slide="4"></button>
+                </div>
+
+                <!-- Contador de Slides -->
+                <div class="absolute top-4 right-4 z-30 bg-black/30 text-white px-3 py-1 rounded-full text-sm">
+                    <span id="current-slide">1</span> / <span id="total-slides">4</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Información -->
+    <section class="py-16 bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Características del Slider</h2>
+                <p class="text-gray-300 max-w-2xl mx-auto">Un slider moderno con todas las funcionalidades que necesitas para presentar tu contenido de manera impactante.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-700/50 p-6 rounded-xl hover:bg-gray-700 transition-all">
+                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-mobile-alt text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Totalmente Responsivo</h3>
+                    <p class="text-gray-300">Se adapta perfectamente a cualquier dispositivo, desde móviles hasta escritorios.</p>
+                </div>
+                
+                <div class="bg-gray-700/50 p-6 rounded-xl hover:bg-gray-700 transition-all">
+                    <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-bolt text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Rápido y Fluido</h3>
+                    <p class="text-gray-300">Transiciones suaves y animaciones optimizadas para una experiencia de usuario excepcional.</p>
+                </div>
+                
+                <div class="bg-gray-700/50 p-6 rounded-xl hover:bg-gray-700 transition-all">
+                    <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-cog text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-white mb-2">Fácil de Personalizar</h3>
+                    <p class="text-gray-300">Modifica colores, contenidos y comportamientos con solo unas pocas líneas de código.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            const indicators = document.querySelectorAll('.slide-indicator');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const currentSlideElement = document.getElementById('current-slide');
+            const totalSlidesElement = document.getElementById('total-slides');
+            
+            let currentSlide = 1;
+            const totalSlides = slides.length;
+            let autoSlideInterval;
+            
+            // Establecer el total de slides
+            totalSlidesElement.textContent = totalSlides;
+            
+            // Función para mostrar un slide específico
+            function showSlide(slideNumber) {
+                // Ocultar todos los slides
+                slides.forEach(slide => {
+                    slide.classList.add('hidden');
+                    slide.classList.remove('animate-fade-in', 'animate-slide-in-right', 'animate-slide-in-left');
+                });
+                
+                // Mostrar el slide actual
+                const currentSlideElement = document.querySelector(`.slide[data-slide="${slideNumber}"]`);
+                currentSlideElement.classList.remove('hidden');
+                
+                // Aplicar animación según la dirección
+                if (slideNumber > currentSlide) {
+                    currentSlideElement.classList.add('animate-slide-in-right');
+                } else if (slideNumber < currentSlide) {
+                    currentSlideElement.classList.add('animate-slide-in-left');
+                } else {
+                    currentSlideElement.classList.add('animate-fade-in');
+                }
+                
+                // Actualizar indicadores
+                indicators.forEach(indicator => {
+                    if (parseInt(indicator.getAttribute('data-slide')) === slideNumber) {
+                        indicator.classList.remove('bg-white/30');
+                        indicator.classList.add('bg-white/70');
+                    } else {
+                        indicator.classList.remove('bg-white/70');
+                        indicator.classList.add('bg-white/30');
+                    }
+                });
+                
+                // Actualizar contador
+                currentSlideElement.textContent = slideNumber;
+                currentSlide = slideNumber;
+            }
+            
+            // Función para avanzar al siguiente slide
+            function nextSlide() {
+                let nextSlideNumber = currentSlide + 1;
+                if (nextSlideNumber > totalSlides) {
+                    nextSlideNumber = 1;
+                }
+                showSlide(nextSlideNumber);
+            }
+            
+            // Función para retroceder al slide anterior
+            function prevSlide() {
+                let prevSlideNumber = currentSlide - 1;
+                if (prevSlideNumber < 1) {
+                    prevSlideNumber = totalSlides;
+                }
+                showSlide(prevSlideNumber);
+            }
+            
+            // Configurar evento para los botones de navegación
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+            
+            // Configurar evento para los indicadores
+            indicators.forEach(indicator => {
+                indicator.addEventListener('click', function() {
+                    const slideNumber = parseInt(this.getAttribute('data-slide'));
+                    showSlide(slideNumber);
+                });
+            });
+            
+            // Configurar navegación con teclado
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight') {
+                    nextSlide();
+                } else if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                }
+            });
+            
+            // Iniciar auto-desplazamiento
+            function startAutoSlide() {
+                autoSlideInterval = setInterval(nextSlide, 5000);
+            }
+            
+            // Detener auto-desplazamiento
+            function stopAutoSlide() {
+                clearInterval(autoSlideInterval);
+            }
+            
+            // Iniciar auto-desplazamiento
+            startAutoSlide();
+            
+            // Pausar auto-desplazamiento al interactuar con el slider
+            const sliderContainer = document.getElementById('slider-container');
+            sliderContainer.addEventListener('mouseenter', stopAutoSlide);
+            sliderContainer.addEventListener('mouseleave', startAutoSlide);
+            
+            // Mostrar el primer slide al cargar la página
+            showSlide(1);
+        });
+    </script>
+</body>
+</html>
