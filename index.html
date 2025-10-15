@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>E-commerce con Email y WhatsApp</title>
+  <style>
+    :root{
+      --bg:#12240f; --card:#0b1320; --accent:#7c3aed; --muted:#a3b1c6; --glass: rgba(255,255,255,0.04);
+      --radius:14px; --glass-2: rgba(255,255,255,0.02);
+      --whatsapp: #25D366;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#071022 0%, var(--bg) 100%);color:#e6eef8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+    .app{width:1100px;max-width:100%;display:grid;grid-template-columns:1fr 420px;gap:28px}
+    .store{background:linear-gradient(180deg,var(--card), rgba(11,19,32,0.9));padding:22px;border-radius:var(--radius);box-shadow:0 6px 30px rgba(2,6,23,0.6);}
+    h1{margin:0 0 6px 0;font-size:20px}
+    p.lead{margin:0 0 18px 0;color:var(--muted)}
+
+    .products{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .product{background:var(--glass);padding:14px;border-radius:12px;display:flex;gap:12px;align-items:center}
+    .thumb{width:86px;height:86px;border-radius:10px;background:linear-gradient(135deg,#0a2540,#1b3b6b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:20px;overflow:hidden}
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .meta{flex:1}
+    .meta h3{margin:0;font-size:15px}
+    .meta p{margin:4px 0 0 0;color:var(--muted);font-size:13px}
+    .price{font-weight:700}
+    .actions{display:flex;flex-direction:column;gap:8px}
+    button.btn{background:linear-gradient(90deg,var(--accent),#5b21b6);border:0;padding:8px 12px;border-radius:10px;color:white;cursor:pointer}
+    button.btn-whatsapp{background:linear-gradient(90deg,var(--whatsapp),#128C7E);border:0;padding:8px 12px;border-radius:10px;color:white;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:10px;color:var(--muted);cursor:pointer}
+
+    /* Cart */
+    .cart{background:linear-gradient(180deg,rgba(255,255,255,0.02),var(--glass-2));padding:18px;border-radius:var(--radius);min-height:380px}
+    .cart h2{margin:0 0 6px 0}
+    .cart .items{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+    .item{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.012),transparent)}
+    .item small{color:var(--muted)}
+    .totals{margin-top:14px;padding-top:12px;border-top:1px dashed rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center}
+
+    /* checkout */
+    form.checkout{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+    input,textarea,select{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px;border-radius:8px;color:inherit}
+    textarea{min-height:80px}
+    .note{font-size:13px;color:var(--muted)}
+    
+    /* Botones de envío */
+    .send-buttons{display:flex;gap:8px;margin-top:12px}
+    .send-buttons button{flex:1}
+    
+    /* Modal de WhatsApp */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center}
+    .modal-content{background:var(--card);padding:20px;border-radius:var(--radius);width:90%;max-width:500px}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+    .modal-close{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer}
+    .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+
+    footer{margin-top:12px;font-size:12px;color:var(--muted);text-align:center}
+
+    @media (max-width:980px){.app{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="store">
+      <h1>Tienda — Productos Destacados</h1>
+      <p class="lead">Añade productos al carrito y realiza la compra. Se enviará un correo con el detalle de la orden y podrás enviarlo por WhatsApp.</p>
+
+      <div class="products" id="products"></div>
+
+      <footer>
+        <small>Diseño moderno y responsivo · Integración EmailJS y WhatsApp</small>
+      </footer>
+    </section>
+
+    <aside class="cart">
+      <h2>Carrito</h2>
+      <div class="items" id="cart-items">
+        <small class="note">Tu carrito está vacío.</small>
+      </div>
+
+      <div class="totals">
+        <strong>Total:</strong>
+        <strong id="cart-total">S/ 0.00</strong>
+      </div>
+
+      <form class="checkout" id="checkout-form">
+        <label class="note">Datos para la compra</label>
+        <input name="customer_name" placeholder="Tu nombre" required />
+        <input name="customer_email" type="email" placeholder="Tu email" required />
+        <input name="customer_phone" type="tel" placeholder="Tu teléfono (para WhatsApp)" />
+        <textarea name="notes" placeholder="Notas (dirección, teléfono, referencia)"></textarea>
+        
+        <div class="send-buttons">
+          <button type="submit" class="btn">Enviar por Correo</button>
+          <button type="button" id="whatsapp-btn" class="btn-whatsapp">Enviar por WhatsApp</button>
+        </div>
+        
+        <button type="button" id="clear-cart" class="ghost">Vaciar carrito</button>
+      </form>
+    </aside>
+  </div>
+
+  <!-- Modal para WhatsApp -->
+  <div class="modal" id="whatsapp-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Enviar pedido por WhatsApp</h3>
+        <button class="modal-close" id="close-modal">&times;</button>
+      </div>
+      <p>Para enviar tu pedido por WhatsApp, ingresa el número de teléfono (con código de país):</p>
+      <input type="tel" id="whatsapp-number" placeholder="Ej: +51987654321" />
+      <div class="modal-footer">
+        <button class="ghost" id="cancel-whatsapp">Cancelar</button>
+        <button class="btn-whatsapp" id="send-whatsapp">Enviar por WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    // === CONFIG: reemplaza con tus datos ===
+    const EMAILJS_SERVICE_ID = 'service_tjyi1rw';
+    const EMAILJS_TEMPLATE_ID = 'template_887nqae';
+    const EMAILJS_PUBLIC_KEY = 'Z8vBHnkpWd70N60RF';
+    // =======================================
+
+    (function(){
+      if (window.emailjs) emailjs.init(EMAILJS_PUBLIC_KEY);
+      else console.warn('EmailJS SDK no cargado');
+    })();
+
+    // Productos (puedes añadir, editar, cambiar precios)
+    const PRODUCTS = [
+      { 
+        id: 'p1', 
+        title: 'Auriculares Wireless', 
+        price: 12.00, 
+        desc: 'Sonido claro, batería 20h',
+        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
+      },
+      { 
+        id: 'p2', 
+        title: 'Teclado Mecánico', 
+        price: 29.50, 
+        desc: 'Switches táctiles, retroiluminación',
+        image: 'https://images.unsplash.com/photo-1541140532154-b024d705b90a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
+      },
+      { 
+        id: 'p3', 
+        title: 'Mouse Gamer', 
+        price: 80.00, 
+        desc: 'Sensor óptico 16000 DPI',
+        image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
+      },
+      { 
+        id: 'p4', 
+        title: 'Mochila Urbana', 
+        price: 140.00, 
+        desc: 'Compartimento laptop 15"',
+        image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
+      }
+    ];
+
+    // Estado del carrito
+    const cart = {};
+
+    // Utils
+    const toCurrency = v => 'S/ ' + v.toFixed(2);
+
+    // Render productos
+    const productsEl = document.getElementById('products');
+    PRODUCTS.forEach(p => {
+      const div = document.createElement('div'); div.className='product';
+      div.innerHTML = `
+        <div class='thumb'>
+          <img src="${p.image}" alt="${p.title}" />
+        </div>
+        <div class='meta'>
+          <h3>${p.title}</h3>
+          <p>${p.desc}</p>
+        </div>
+        <div style='text-align:right'>
+          <div class='price'>${toCurrency(p.price)}</div>
+          <div class='actions'>
+            <button class='btn' data-id='${p.id}'>Añadir</button>
+          </div>
+        </div>
+      `;
+      productsEl.appendChild(div);
+    });
+
+    // Añadir listener a botones de añadir
+    productsEl.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      const id = btn.dataset.id; if(!id) return;
+      addToCart(id);
+    });
+
+    // Cart UI
+    const cartItemsEl = document.getElementById('cart-items');
+    const cartTotalEl = document.getElementById('cart-total');
+
+    function addToCart(id){
+      if (!cart[id]) cart[id] = { ...PRODUCTS.find(p=>p.id===id), qty:0 };
+      cart[id].qty++;
+      renderCart();
+    }
+
+    function removeFromCart(id){
+      if (!cart[id]) return;
+      cart[id].qty--;
+      if (cart[id].qty<=0) delete cart[id];
+      renderCart();
+    }
+
+    function clearCart(){
+      for(const k in cart) delete cart[k];
+      renderCart();
+    }
+
+    function renderCart(){
+      cartItemsEl.innerHTML = '';
+      const keys = Object.keys(cart);
+      if (!keys.length){
+        cartItemsEl.innerHTML = '<small class="note">Tu carrito está vacío.</small>';
+        cartTotalEl.textContent = toCurrency(0);
+        return;
+      }
+
+      let total = 0;
+      keys.forEach(id=>{
+        const it = cart[id];
+        total += it.price * it.qty;
+        const item = document.createElement('div'); item.className='item';
+        item.innerHTML = `
+          <div>
+            <strong>${it.title}</strong><br><small class='note'>${toCurrency(it.price)} x ${it.qty}</small>
+          </div>
+          <div style='display:flex;gap:8px;align-items:center'>
+            <button class='ghost' data-action='minus' data-id='${it.id}'>-</button>
+            <button class='ghost' data-action='plus' data-id='${it.id}'>+</button>
+          </div>
+        `;
+        cartItemsEl.appendChild(item);
+      });
+
+      cartTotalEl.textContent = toCurrency(total);
+    }
+
+    // Delegación en carrito para + y -
+    cartItemsEl.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      const id = btn.dataset.id; const action = btn.dataset.action;
+      if (action==='minus') removeFromCart(id);
+      if (action==='plus') addToCart(id);
+    });
+
+    document.getElementById('clear-cart').addEventListener('click', clearCart);
+
+    // Funciones para generar mensajes de pedido
+    function generateOrderDetails() {
+      const items = Object.values(cart);
+      const lines = items.map(it => `• ${it.title} — ${it.qty} x ${toCurrency(it.price)} = ${toCurrency(it.price * it.qty)}`);
+      const subtotal = items.reduce((s,it)=>s+it.price*it.qty,0);
+      const total = subtotal;
+      
+      return {
+        text: lines.join('\n'),
+        total: toCurrency(total),
+        items: items
+      };
+    }
+
+    // Checkout: envío por EmailJS
+    const checkoutForm = document.getElementById('checkout-form');
+    checkoutForm.addEventListener('submit', function(e){
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const name = formData.get('customer_name');
+      const email = formData.get('customer_email');
+      const phone = formData.get('customer_phone') || '';
+      const notes = formData.get('notes') || '';
+
+      // Validar carrito
+      const items = Object.values(cart);
+      if (!items.length) return alert('El carrito está vacío.');
+
+      // Preparar detalle de la orden
+      const orderDetails = generateOrderDetails();
+
+      // Datos que pedirá tu plantilla en EmailJS
+      const templateParams = {
+        customer_name: name,
+        customer_email: email,
+        customer_phone: phone,
+        notes: notes,
+        order_details: orderDetails.text,
+        total: orderDetails.total,
+        raw_order: JSON.stringify(orderDetails.items, null, 2)
+      };
+
+      // Enviar por EmailJS
+      if (!window.emailjs) return alert('EmailJS no está cargado.');
+
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+        .then((response)=>{
+          console.log('SUCCESS!', response.status, response.text);
+          alert('Pedido enviado por correo. Revisa tu bandeja de entrada.');
+          clearCart();
+          checkoutForm.reset();
+        }, (err)=>{
+          console.error('FAILED...', err);
+          alert('No se pudo enviar el pedido: ' + (err.text || JSON.stringify(err)));
+        });
+    });
+
+    // Funcionalidad WhatsApp
+    const whatsappBtn = document.getElementById('whatsapp-btn');
+    const whatsappModal = document.getElementById('whatsapp-modal');
+    const closeModal = document.getElementById('close-modal');
+    const cancelWhatsapp = document.getElementById('cancel-whatsapp');
+    const sendWhatsapp = document.getElementById('send-whatsapp');
+    const whatsappNumber = document.getElementById('whatsapp-number');
+
+    // Abrir modal WhatsApp
+    whatsappBtn.addEventListener('click', function() {
+      const items = Object.values(cart);
+      if (!items.length) return alert('El carrito está vacío.');
+      
+      const formData = new FormData(checkoutForm);
+      const name = formData.get('customer_name') || '';
+      const phone = formData.get('customer_phone') || '';
+      
+      // Si ya hay un teléfono en el formulario, usarlo
+      if (phone) {
+        whatsappNumber.value = phone;
+      }
+      
+      whatsappModal.style.display = 'flex';
+    });
+
+    // Cerrar modal
+    closeModal.addEventListener('click', function() {
+      whatsappModal.style.display = 'none';
+    });
+
+    cancelWhatsapp.addEventListener('click', function() {
+      whatsappModal.style.display = 'none';
+    });
+
+    // Enviar por WhatsApp
+    sendWhatsapp.addEventListener('click', function() {
+      const phone = whatsappNumber.value.trim();
+      if (!phone) return alert('Por favor ingresa un número de teléfono');
+      
+      const formData = new FormData(checkoutForm);
+      const name = formData.get('customer_name') || 'Cliente';
+      const notes = formData.get('notes') || '';
+      
+      // Generar mensaje para WhatsApp
+      const orderDetails = generateOrderDetails();
+      
+      let message = `¡Hola! Tengo un nuevo pedido:\n\n`;
+      message += `*Cliente:* ${name}\n`;
+      message += `*Detalle del pedido:*\n${orderDetails.text}\n\n`;
+      message += `*Total:* ${orderDetails.total}\n`;
+      
+      if (notes) {
+        message += `*Notas:* ${notes}\n`;
+      }
+      
+      message += `\nPor favor confirma la disponibilidad y procede con el proceso.`;
+      
+      // Codificar el mensaje para URL
+      const encodedMessage = encodeURIComponent(message);
+      
+      // Crear enlace de WhatsApp
+      const whatsappURL = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodedMessage}`;
+      
+      // Abrir en nueva pestaña
+      window.open(whatsappURL, '_blank');
+      
+      // Cerrar modal
+      whatsappModal.style.display = 'none';
+      
+      // Opcional: limpiar carrito después del envío
+      // clearCart();
+    });
+
+    // Inicializar render
+    renderCart();
+
+  </script>
+</body>
+</html>
